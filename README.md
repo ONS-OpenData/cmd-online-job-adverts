@@ -6,9 +6,9 @@ Transform takes 1 input xlsx file, remove any previous xlsx files so there is no
 
 Place the input file in the same directory as the script or alternatively change the location variable in transform.ipynb to match the file location.
 
-1 output files is created
+1 output file is created
 - v4-job-advert-estimates.csv
 
 There is some sparsity within this dataset, which the SparsityFiller function takes care of.
 
-The transform requires the use of databaker & databakerUtils
+The transform requires the use of databaker & databakerUtils.
