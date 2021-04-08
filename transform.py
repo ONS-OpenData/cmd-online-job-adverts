@@ -21,7 +21,7 @@ from databakerUtils.sparsityFunctions import SparsityFiller
 location = '*.xlsx'
 file = glob.glob(location)[0]
 
-wanted_sheets = ('Adverts by category Feb 2020', 'Adverts by category 2019 ')
+wanted_sheets = ['Adverts by category Feb 2020']
 tab_names = [tab.name for tab in loadxlstabs(file)]
 for sheet in wanted_sheets:
     assert sheet in tab_names, 'Sheet "{}" not in spreadsheet'.format(sheet)
@@ -206,10 +206,4 @@ if __name__ == '__main__':
         transform(sheet)
         print(sheet, 'transform complete')
     print('Transform complete!')
-
-
-# In[ ]:
-
-
-
 
