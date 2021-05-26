@@ -199,11 +199,17 @@ def OutputName(tab_name):
         raise Exception('{} is not the correct tab of data'.format(tab_name))
         
         
+from api_pipeline import Upload_Data_To_Florence
+credentials = 'florence-details.json'
+        
 ''' Run Transform'''
 
 if __name__ == '__main__':
     for sheet in wanted_sheets:
         transform(sheet)
         print(sheet, 'transform complete')
-    print('Transform complete!')
+        print('Uploading {} to CMD'.format(sheet))
+        v4 = OutputName(sheet)
+        Upload_Data_To_Florence(credentials, 'online-job-advert-estimates', v4)
+    print('All complete!')
 
