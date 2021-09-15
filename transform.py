@@ -1,25 +1,18 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
-
-
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Jun  8 12:53:36 2020
-
-@author: Jim
-"""
-
 from databaker.framework import *
 import pandas as pd
-import glob
-from datetime import datetime
-from databakerUtils.sparsityFunctions import SparsityFiller
+import glob, datetime
+from databakerUtils.sparsityFunctions import SparsityFiller ##
+from api_pipeline import * ##
 
-location = '*.xlsx'
-file = glob.glob(location)[0]
+# file paths that may need to be changed
+location = 'inputs/online-jobs/*.xlsx' # location of source data
+output = 'D:/' # location of output data
+metadata_file = 'inputs/online-jobs/online-job-advert-estimates-feb-2020-index-by-category-v16.csv-metadata.json' # metadata file path
+credentials = 'florence-details.json' # path to login details
+
+file = glob.glob(location)
+assert len(file) == 1, 'More than one input file located'
+file = file[0]
 
 wanted_sheets = ['Adverts by category Feb 2020']
 tab_names = [tab.name for tab in loadxlstabs(file)]
@@ -27,6 +20,11 @@ for sheet in wanted_sheets:
     assert sheet in tab_names, 'Sheet "{}" not in spreadsheet'.format(sheet)
 
 imputed_data_marker = 'x' # used for imputed values
+
+# variables for upload
+dataset_id = 'online-job-advert-estimates'
+edition = 'feb-2020-index-by-category'
+collection_name = 'CMD online job adverts'
 
 '''Functions'''
 
@@ -39,6 +37,7 @@ def transform(tab_name):
         # row number of start point to skip rows for read_excel
         #start_point = tab.excel_ref('A').filter(contains_string('Date'))
         start_point = tab.excel_ref('B').filter(contains_string('Date'))
+        start_point = tab.excel_ref('B3')
         start_point_number = start_point.y
         number_of_indicators = len(start_point.fill(DOWN).is_not_blank().is_not_whitespace())
         
@@ -71,17 +70,18 @@ def transform(tab_name):
     source = source.drop(['Unnamed: 0'], axis=1)
     
     # check to make sure data starts at 07/02/18
-    if source.columns[1] != datetime(2018, 2, 7, 0, 0):
+    if source.columns[1] != datetime.datetime(2018, 2, 7, 0, 0):
         raise Exception('''
     First column of data starting at "{}" rather than "07/02/18"
     Week numbers will be out of sync
-    '''.format(datetime.strftime(source.columns[1], '%d-%m-%Y')))
+    '''.format(datetime.datetime.strftime(source.columns[1], '%d-%m-%Y')))
     
+    source = source.rename(columns={'Unnamed: 1':'Date'})
     df_list = []
     week_number_start = 6 # data starts 07/02/18 -> equivalent to week 6
     for col in source.columns:
         if col == 'Date':
-            continue
+            continue            
         
         df_loop = pd.DataFrame()
         df_loop['v4_1'] = source[col]
@@ -155,7 +155,7 @@ def transform(tab_name):
     SparsityFiller(output_file, data_marker)
 
 def ConvertDateTime(value):
-    return datetime.strftime(value, '%d-%m-%Y')
+    return datetime.datetime.strftime(value, '%d-%m-%Y')
 
 def DataMarker(value):
     if value == 'All':
@@ -192,16 +192,13 @@ def WeekNumberLabel(value):
 def OutputName(tab_name):
     # returns the correct output file name from the tab name
     if 'feb 2020' in tab_name.lower():
-        return 'v4-job-advert-estimates-feb-2020-index-by-category.csv'
+        return output + 'v4-job-advert-estimates-feb-2020-index-by-category.csv'
     elif '2019' in tab_name.lower():
-        return 'v4-job-advert-estimates-2019-index-by-category.csv'
+        return output + 'v4-job-advert-estimates-2019-index-by-category.csv'
     else:
         raise Exception('{} is not the correct tab of data'.format(tab_name))
         
-        
-from api_pipeline import Upload_Data_To_Florence
-credentials = 'florence-details.json'
-        
+
 ''' Run Transform'''
 
 if __name__ == '__main__':
@@ -210,6 +207,14 @@ if __name__ == '__main__':
         print(sheet, 'transform complete')
         print('Uploading {} to CMD'.format(sheet))
         v4 = OutputName(sheet)
-        Upload_Data_To_Florence(credentials, 'online-job-advert-estimates', v4)
+        upload_dict = {
+                dataset_id:{
+                    'v4':v4,
+                    'edition':edition,
+                    'collection_name':collection_name,
+                    'metadata_file':metadata_file
+                    }
+            }
+        Multi_Upload_To_Cmd(credentials, upload_dict)
     print('All complete!')
 
