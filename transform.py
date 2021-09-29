@@ -7,7 +7,7 @@ from api_pipeline import * ##
 # file paths that may need to be changed
 location = 'inputs/online-jobs/*.xlsx' # location of source data
 output = 'D:/' # location of output data
-metadata_file = 'inputs/online-jobs/online-job-advert-estimates-feb-2020-index-by-category-v16.csv-metadata.json' # metadata file path
+metadata_file = 'inputs/online-jobs/online-job-advert-estimates-feb-2020-index-by-category-v27.csv-metadata.json' # metadata file path
 credentials = 'florence-details.json' # path to login details
 
 file = glob.glob(location)
