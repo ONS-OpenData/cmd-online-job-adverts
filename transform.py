@@ -2,7 +2,7 @@ from databaker.framework import *
 import pandas as pd
 import glob, datetime
 from databakerUtils.sparsityFunctions import SparsityFiller ##
-from api_pipeline import * ##
+from api_pipeline import Multi_Upload_To_Cmd ##
 
 # file paths that may need to be changed
 location = 'inputs/online-jobs/*.xlsx' # location of source data
