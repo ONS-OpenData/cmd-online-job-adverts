@@ -1,10 +1,12 @@
 from databaker.framework import *
 import pandas as pd
 import glob, datetime
+
+## these needed to be pointed to if not pip installed 
 from databakerUtils.sparsityFunctions import SparsityFiller ##
 from api_pipeline import Multi_Upload_To_Cmd ##
 
-# file paths that may need to be changed
+### file paths that may need to be changed ###
 location = 'inputs/online-jobs/*.xlsx' # location of source data
 output = 'D:/' # location of output data
 metadata_file = 'inputs/online-jobs/online-job-advert-estimates-feb-2020-index-by-category-v27.csv-metadata.json' # metadata file path
@@ -20,13 +22,6 @@ for sheet in wanted_sheets:
     assert sheet in tab_names, 'Sheet "{}" not in spreadsheet'.format(sheet)
 
 imputed_data_marker = 'x' # used for imputed values
-
-# variables for upload
-dataset_id = 'online-job-advert-estimates'
-edition = 'feb-2020-index-by-category'
-collection_name = 'CMD online job adverts'
-
-'''Functions'''
 
 def transform(tab_name):
     tabs = loadxlstabs(file, [tab_name])
@@ -202,6 +197,11 @@ def OutputName(tab_name):
 ''' Run Transform'''
 
 if __name__ == '__main__':
+    # variables for upload
+    dataset_id = 'online-job-advert-estimates'
+    edition = 'feb-2020-index-by-category'
+    collection_name = 'CMD online job adverts'
+    
     for sheet in wanted_sheets:
         transform(sheet)
         print(sheet, 'transform complete')
